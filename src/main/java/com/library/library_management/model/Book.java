@@ -21,5 +21,4 @@ public class Book {
     private String genre;
     private int totalCopies;
     private int availableCopies;
-
 }

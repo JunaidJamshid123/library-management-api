@@ -1,4 +1,7 @@
 package com.library.library_management.model;
 
-public class BorrowStatus {
+public enum BorrowStatus {
+    BORROWED,
+    RETURNED,
+    OVERDUE
 }
