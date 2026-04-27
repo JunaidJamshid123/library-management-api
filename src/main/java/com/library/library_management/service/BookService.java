@@ -65,6 +65,24 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    public List<Book> searchBooksAdvanced(String title, String author, String genre, Boolean available) {
+        return bookRepository.searchBooks(title, author, genre, available);
+    }
+
+    public Book updateCopies(Long id, int copies) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
+
+        int diff = copies - book.getTotalCopies();
+        int newAvailable = book.getAvailableCopies() + diff;
+        if (newAvailable < 0) {
+            throw new IllegalArgumentException("Cannot reduce copies below the number currently borrowed");
+        }
+        book.setTotalCopies(copies);
+        book.setAvailableCopies(newAvailable);
+        return bookRepository.save(book);
+    }
+
     public void deleteBook(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));

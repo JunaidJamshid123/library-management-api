@@ -1,6 +1,7 @@
 package com.library.library_management.controller;
 
 import com.library.library_management.dto.ApiResponse;
+import com.library.library_management.dto.CopiesRequest;
 import com.library.library_management.model.Book;
 import com.library.library_management.service.BookService;
 import org.springframework.http.HttpStatus;
@@ -29,26 +30,24 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Book>>> getAllBooks(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String author) {
-
-        List<Book> books = bookService.searchBooks(title, author);
-        if (books.isEmpty()) {
-            String msg = "No books found";
-            if (title != null && author != null) {
-                msg = "No books found with title '" + title + "' and author '" + author + "'";
-            } else if (title != null) {
-                msg = "No books found with title '" + title + "'";
-            } else if (author != null) {
-                msg = "No books found with author '" + author + "'";
-            }
-            return ResponseEntity.ok(
-                    ApiResponse.success(200, msg, books)
-            );
-        }
+    public ResponseEntity<ApiResponse<List<Book>>> getAllBooks() {
+        List<Book> books = bookService.getAllBooks();
         return ResponseEntity.ok(
                 ApiResponse.success(200, "Books fetched successfully", books)
+        );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<Book>>> searchBooks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Boolean available) {
+
+        List<Book> books = bookService.searchBooksAdvanced(title, author, genre, available);
+        String msg = books.isEmpty() ? "No books found matching criteria" : "Books fetched successfully";
+        return ResponseEntity.ok(
+                ApiResponse.success(200, msg, books)
         );
     }
 
@@ -75,6 +74,16 @@ public class BookController {
         Book updated = bookService.updateBook(id, bookDetails);
         return ResponseEntity.ok(
                 ApiResponse.success(200, "Book updated successfully", updated)
+        );
+    }
+
+    @PatchMapping("/{id}/copies")
+    public ResponseEntity<ApiResponse<Book>> updateCopies(
+            @PathVariable Long id,
+            @RequestBody CopiesRequest request) {
+        Book updated = bookService.updateCopies(id, request.getCopies());
+        return ResponseEntity.ok(
+                ApiResponse.success(200, "Book copies updated successfully", updated)
         );
     }
 
